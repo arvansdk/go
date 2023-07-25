@@ -2,12 +2,10 @@ package main
 
 import (
 	arvan "github.com/arvansdk/go/arvan"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	godotenv.Load()
-	cdnClient := &arvan.APIClient{Service: "CDN"}
+	cdnClient := &arvan.APIClient{}
 	testDomain := "jikopik.site"
 	// info := cdnClient.GetDomainInfo("linkbe.site")
 	cdnClient.CreateDomain(testDomain)

@@ -31,9 +31,9 @@ type DomainInfoResponse struct {
 	Message	string		`json:"message"`
 }
 
-func (cc *APIClient) GetDomainInfo(domain string) DomainInfo {
+func (client *APIClient) GetDomainInfo(domain string) DomainInfo {
 	apiResponse := &DomainInfoResponse{}
-	res := cc.CurlGet(domain, map[string]string{})
+	res := client.CurlGet(domain, map[string]string{})
 	json.Unmarshal(res, &apiResponse)
 	return apiResponse.Data
 }
@@ -51,8 +51,8 @@ type CreateDomainPayload struct {
 	Domain	string	`json:"domain"`
 }
 
-func (cc *APIClient) CreateDomain(domain string) []byte {
-	return cc.CurlPost(
+func (client *APIClient) CreateDomain(domain string) []byte {
+	return client.CurlPost(
 		"domains/dns-service",
 		CreateDomainPayload{
 			Domain: domain,
@@ -87,8 +87,8 @@ type RecordValue struct {
 	Weight	any		`json:"weight"`
 }
 
-func (cc *APIClient) AddDNSRecord(domain, name, ip string) []byte {
-	return cc.CurlPost(
+func (client *APIClient) AddDNSRecord(domain, name, ip string) []byte {
+	return client.CurlPost(
 		fmt.Sprintf("%s/%s/%s", "domains", domain, "dns-records"),
 		AddDNSRecordPayload{
 			Type: "A",
@@ -114,8 +114,8 @@ type SSLConfigPayload struct {
 	SSLStatus		bool	`json:"ssl_status"`
 }
 
-func (cc *APIClient) UpdateSSLConfig(domain string) {
-	cc.CurlPatch(
+func (client *APIClient) UpdateSSLConfig(domain string) {
+	client.CurlPatch(
 		fmt.Sprintf("%s/%s/%s", "domains", domain, "ssl"),
 		SSLConfigPayload{
 			Certificate: "managed",

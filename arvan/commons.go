@@ -8,24 +8,26 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 type APIClient struct {
 	initialized	bool
 	httpClient	*http.Client
 	apiUrl		string
-	auth		string
-	Service		string
+	apiKey		string
 }
 
-func (cc *APIClient) init() {
-	if cc.initialized {
+func (client *APIClient) init() {
+	if client.initialized {
 		return
 	}
-	cc.initialized = true
-	cc.httpClient = &http.Client{}
-	cc.apiUrl = os.Getenv("API_URL")
-	cc.auth = os.Getenv("API_KEY")
+	godotenv.Load()
+	client.initialized = true
+	client.httpClient = &http.Client{}
+	client.apiUrl = os.Getenv("API_URL")
+	client.apiKey = os.Getenv("API_KEY")
 }
 
 func mapToQueryString(queryParams map[string]string) string {
@@ -36,17 +38,17 @@ func mapToQueryString(queryParams map[string]string) string {
 	return queryString
 }
 
-func (cc *APIClient) CurlGet(url string, queryParams map[string]string) []byte {
-	cc.init()
+func (client *APIClient) CurlGet(url string, queryParams map[string]string) []byte {
+	client.init()
 	log.Println("Getting:", url)
 	req, _ := http.NewRequest(
 		"GET",
-		fmt.Sprintf("%s/%s?%s", cc.apiUrl, url, mapToQueryString(queryParams)),
+		fmt.Sprintf("%s/%s?%s", client.apiUrl, url, mapToQueryString(queryParams)),
 		nil,
 	)
-	req.Header.Set("authorization", cc.auth)
+	req.Header.Set("authorization", client.apiKey)
 	req.Header.Set("accept", "application/json, text/plain, */*")
-	res, err := cc.httpClient.Do(req)
+	res, err := client.httpClient.Do(req)
 	if err != nil {
 		log.Println("HTTP request failed!")
 		return []byte("")
@@ -60,20 +62,20 @@ func (cc *APIClient) CurlGet(url string, queryParams map[string]string) []byte {
 	return resBody
 }
 
-func (cc *APIClient) CurlPost(url string, data interface{}) []byte {
-	cc.init()
+func (client *APIClient) CurlPost(url string, data interface{}) []byte {
+	client.init()
 	jsonData, _ := json.Marshal(data)
 	body := strings.NewReader(string(jsonData))
 	log.Println("Posting:", url)
 	req, _ := http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s/%s", cc.apiUrl, url),
+		fmt.Sprintf("%s/%s", client.apiUrl, url),
 		body,
 	)
-	req.Header.Set("authorization", cc.auth)
+	req.Header.Set("authorization", client.apiKey)
 	req.Header.Set("accept", "application/json, text/plain, */*")
 	req.Header.Set("content-type", "application/json")
-	res, err := cc.httpClient.Do(req)
+	res, err := client.httpClient.Do(req)
 	if err != nil {
 		log.Println("HTTP request failed!")
 		return []byte("")
@@ -88,20 +90,20 @@ func (cc *APIClient) CurlPost(url string, data interface{}) []byte {
 	return resBody
 }
 
-func (cc *APIClient) CurlPatch(url string, data interface{}) []byte {
-	cc.init()
+func (client *APIClient) CurlPatch(url string, data interface{}) []byte {
+	client.init()
 	jsonData, _ := json.Marshal(data)
 	body := strings.NewReader(string(jsonData))
 	log.Println("Patching:", url)
 	req, _ := http.NewRequest(
 		"PATCH",
-		fmt.Sprintf("%s/%s", cc.apiUrl, url),
+		fmt.Sprintf("%s/%s", client.apiUrl, url),
 		body,
 	)
-	req.Header.Set("authorization", cc.auth)
+	req.Header.Set("authorization", client.apiKey)
 	req.Header.Set("accept", "application/json, text/plain, */*")
 	req.Header.Set("content-type", "application/json")
-	res, err := cc.httpClient.Do(req)
+	res, err := client.httpClient.Do(req)
 	if err != nil {
 		log.Println("HTTP request failed!")
 		return []byte("")
