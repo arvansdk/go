@@ -19,18 +19,24 @@ type APIClient struct {
 	apiKey		string
 }
 
+func NewClient() *APIClient {
+	client := &APIClient{}
+	client.init()
+	return client
+}
+
 func (client *APIClient) init() {
-	if client.initialized {
+	if client.initialized{
 		return
 	}
 	godotenv.Load()
 	client.initialized = true
 	client.httpClient = &http.Client{}
-	client.apiUrl = os.Getenv("API_URL")
-	client.apiKey = os.Getenv("API_KEY")
+	client.apiUrl = os.Getenv("ARVAN_API_URL")
+	client.apiKey = os.Getenv("ARVAN_API_KEY")
 }
 
-func mapToQueryString(queryParams map[string]string) string {
+func MapToQueryString(queryParams map[string]string) string {
 	queryString := ""
 	for key, value := range queryParams {
 		queryString += fmt.Sprintf("%s=%s&", key, value)
@@ -43,7 +49,7 @@ func (client *APIClient) CurlGet(url string, queryParams map[string]string) []by
 	log.Println("Getting:", url)
 	req, _ := http.NewRequest(
 		"GET",
-		fmt.Sprintf("%s/%s?%s", client.apiUrl, url, mapToQueryString(queryParams)),
+		fmt.Sprintf("%s/%s?%s", client.apiUrl, url, MapToQueryString(queryParams)),
 		nil,
 	)
 	req.Header.Set("authorization", client.apiKey)

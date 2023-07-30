@@ -125,3 +125,33 @@ func (client *APIClient) UpdateSSLConfig(domain string) {
 		},
 	)
 }
+
+/* Traffic Usage */
+type DomainTrafficReport struct {
+	Data	ReportData	`json:"data"`
+}
+
+type ReportData struct {
+	Statistics	ReportStatistics	`json:"statistics"`
+}
+
+type ReportStatistics struct {
+	Traffics	TrafficsReport	`json:"traffics"`
+}
+
+type TrafficsReport struct {
+	Total	int64	`json:"total"`
+}
+
+func (client *APIClient) GetReports(domain string) DomainTrafficReport {
+	var dtr DomainTrafficReport
+	data := client.CurlGet(
+		fmt.Sprintf("%s/%s/%s/%s", "domains", domain, "reports", "traffics"),
+		map[string]string{
+			"period":"30d",
+			"group":"none",
+		},
+	)
+	json.Unmarshal(data, &dtr)
+	return dtr
+}
